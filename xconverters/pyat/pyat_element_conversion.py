@@ -15,6 +15,7 @@ DIFF_ATTRIBUTE_MAP_PYAT = {
                              'ks':'PolynomA',
                              'voltage':'Voltage',
                              'frequency':'Frequency',
+                             'lag':'TimeLag',
                              'harmonic_number':'HarmNumber',
                              'energy':'Energy',
                             }
@@ -30,6 +31,7 @@ DIFF_ATTRIBUTE_MAP_TO_PYAT = {
                              'ks':'PolynomA',
                              'voltage':'voltage',
                              'frequency':'frequency',
+                             'lag':'TimeLag',
                              'harmonic_number':'harmonic_number',
                              'energy':'energy',
                             }
@@ -143,7 +145,16 @@ def to_pyat(xe_element):
     except: AttributeError
     
     mapped_attr.update({'family_name':xe_element.name})
-    if xe_element.__class__.__name__ == 'Octupole':
+    if xe_element.__class__.__name__ == 'HKicker':
+        mapped_attr['kick_angle'] = [np.arcsin(element_dict['kick']), 0]
+
+    if xe_element.__class__.__name__ == 'VKicker':
+        mapped_attr['kick_angle'] = [0, np.arcsin(element_dict['kick'])]
+
+    if xe_element.__class__.__name__ == 'TKicker':
+        mapped_attr['kick_angle'] = [np.arcsin(element_dict['kick']), np.arcsin(element_dict['kick'])]
+
+    if xe_element.__class__.__name__ in ['Octupole', 'ThinMultipole']:
         mapped_attr['poly_a'] = mapped_attr.pop('PolynomA')
         mapped_attr['poly_b'] = mapped_attr.pop('PolynomB')
 
@@ -158,18 +169,24 @@ TO_PYAT_CONV = {'Monitor':         at.Monitor,
                 'Quadrupole':      at.Quadrupole, 
                 'Sextupole':       at.Sextupole, 
                 'Octupole':        at.Octupole, 
+                'ThinMultipole':   at.ThinMultipole,
                 'Collimator':      at.Drift, 
+                'HKicker':         at.Corrector, 
+                'VKicker':         at.Corrector, 
+                'TKicker':         at.Corrector, 
                 'RFCavity':        at.RFCavity}
 
 
-PYAT_TO_XSEQUENCE_MAP = {'Marker':     xe.Marker, 
-                         'Drift':      xe.Drift, 
-                         'Dipole':     xe.SectorBend, 
-                         'Quadrupole': xe.Quadrupole, 
-                         'Sextupole':  xe.Sextupole, 
-                         'Octupole':   xe.Octupole, 
-                         'Collimator': xe.Collimator, 
-                         'RFCavity':   xe.RFCavity}
+PYAT_TO_XSEQUENCE_MAP = {'Marker':        xe.Marker, 
+                         'Drift':         xe.Drift, 
+                         'Dipole':        xe.SectorBend, 
+                         'Quadrupole':    xe.Quadrupole, 
+                         'Sextupole':     xe.Sextupole, 
+                         'Octupole':      xe.Octupole,
+                         'ThinMultipole': xe.ThinMultipole,
+                         'Corrector':     xe.TKicker, 
+                         'Collimator':    xe.Collimator, 
+                         'RFCavity':      xe.RFCavity}
 
 
 def convert_pyat_element(pyat_element):

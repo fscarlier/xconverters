@@ -11,7 +11,7 @@ from cpymad.madx import Madx
 def test_sextupole_length(name, l):
     q = xe.Sextupole(name, length=l)
     assert q.name == name
-    assert q.position_data.length == l
+    assert q.length == l
     
     #CPYMAD
     md = Madx()

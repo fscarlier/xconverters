@@ -42,10 +42,13 @@ def test_pyat_xsequence_pyat_orbit(example_pyat_xsequence_pyat):
            sum(abs(lin.closed_orbit[:,4] - lin_new.closed_orbit[:,4])) == 0 and\
            sum(abs(lin.closed_orbit[:,5] - lin_new.closed_orbit[:,5])) == 0
 
-def test_pyat_xsequence_pyat_beta(example_pyat_xsequence_pyat):
+def test_pyat_xsequence_pyat_beta_x(example_pyat_xsequence_pyat):
     lin, lin_new, _, _ = example_pyat_xsequence_pyat
-    assert sum(abs(lin.beta[:,0] - lin_new.beta[:,0])) == 0 and\
-           sum(abs(lin.beta[:,1] - lin_new.beta[:,1])) == 0
+    assert max(abs((lin.beta[:,0] - lin_new.beta[:,0])/lin_new.beta[:,0])) == 0 
+
+def test_pyat_xsequence_pyat_beta_y(example_pyat_xsequence_pyat):
+    lin, lin_new, _, _ = example_pyat_xsequence_pyat
+    assert max(abs((lin.beta[:,1] - lin_new.beta[:,1])/lin_new.beta[:,1])) == 0
 
 def test_pyat_xsequence_pyat_disp(example_pyat_xsequence_pyat):
     lin, lin_new, _, _ = example_pyat_xsequence_pyat

@@ -23,7 +23,7 @@ def create_cpymad_from_file(sequence_path, energy, particle_type='electron', log
 
 
 def create_pyat_from_file(file_path):
-    ring = at.load.matfile.load_mat(file_path, key='ring')
+    ring = at.load.matfile.load_mat(file_path)#, key='ring')
     ring = at.Lattice(ring)
     return ring
 

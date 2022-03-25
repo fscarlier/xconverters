@@ -5,16 +5,20 @@ Module xsequence.lattice
 This is a Python3 module containing base Lattice class to manipulate accelerator sequences.
 """
 
+from ast import Raise
 import math
+from tabnanny import check
 import xdeps
 
 from cpymad.madx import Madx
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from lark import Lark, Transformer, v_args
 
-import xsequence.elements as xe
+from xsequence.lattice import Lattice
+from xsequence.lattice_baseclasses import Node, NodesList
 import xsequence.elements_dataclasses as xed
 from xconverters.cpymad import cpymad_element_conversion, cpymad_properties
+from xsequence.lattice_baseclasses import Beam
 
 calc_grammar = """
     ?start: sum
@@ -51,7 +55,7 @@ class XSequenceMadxEval(Transformer):
     from operator import neg, pos, pow
     number = float
 
-    def __init__(self,variables,functions,elements):
+    def __init__(self, variables, functions, elements):
         self.variables = variables
         self.functions = functions
         self.elements  = elements
@@ -85,86 +89,92 @@ def from_madx_seqfile(seq_file, seq_name, energy: float, particle_type: str = 'e
     return madx
 
 
+def find_reference_node_idx(sequence, reference):
+    if reference == '':
+        return 0
+    else:
+        matching_nodes = [idx for idx, node in enumerate(sequence) if node.element_name == reference]
+        if len(matching_nodes) > 1:
+            raise Exception(f"Too many nodes with reference element name for positions: {reference}")
+        elif len(matching_nodes) == 0:
+            raise Exception(f"No nodes with reference element name for positions: {reference}")
+        else:
+            return matching_nodes[0]
+
+
 def from_cpymad(madx: Madx, seq_name: str):
     variables=defaultdict(lambda :0)
     for name,par in madx.globals.cmdpar.items():
         variables[name]=par.value
 
-    sequence_dict = OrderedDict()
-    elements={}
-    for elem in madx.sequence[seq_name].elements:
-        elemdata={}
-        for parname, par in elem.cmdpar.items():
-            elemdata[parname]=par.value
-        elements[elem.name]=elemdata
-        sequence_dict[elem.name] = cpymad_element_conversion.convert_cpymad_element(elem) 
+    sequence = NodesList()
+    elements_dict = {}
+    for element in madx.sequence[seq_name].elements:
+        element_data={}
+        for parname, par in element.cmdpar.items():
+            element_data[parname]=par.value
+        elements_dict[element.name] = cpymad_element_conversion.convert_cpymad_element(element) 
+        sequence.append(Node(element_name=element.name, location=element['at'], reference_element=element['from']))
 
-    for el in sequence_dict:
-        if sequence_dict[el].position_data.reference_element:
-            sequence_dict[el].position_data.reference = sequence_dict[sequence_dict[el].position_data.reference_element].position_data.position 
+    for el in sequence:
+        reference_node_idx = find_reference_node_idx(sequence, el.reference_element)
+        if reference_node_idx != 0:
+            el.reference = sequence[reference_node_idx].position 
+        else:
+            el.reference = 0
 
-    return variables, sequence_dict 
-
-
-def set_from_key(el, key, value):
-    if key in xed.ElementID.INIT_PROPERTIES:
-        setattr(el.id_data, key, value)
-    elif key in xed.ElementParameterData.INIT_PROPERTIES:
-        setattr(el.parameter_data, key, value)
-    elif key in xed.ElementPosition.INIT_PROPERTIES:
-        setattr(el.position_data, key, value)
-    elif key in xed.ApertureData.INIT_PROPERTIES:
-        setattr(el.aperture_data, key, value)
-    elif key in xed.PyatData.INIT_PROPERTIES:
-        setattr(el.pyat_data, key, value)
-    else:
-        setattr(el, key, value)
+    return variables, sequence, elements_dict 
 
 
-def from_cpymad_with_dependencies(madx: Madx, seq_name: str, dependencies: bool = False):
-    variables, sequence_dict = from_cpymad(madx, seq_name)
-    manager = xdeps.Manager()
-    vref = manager.ref(variables,'v')
-    mref = manager.ref(math,'m')
-    sref = manager.ref(sequence_dict,'s')
-    madeval = XSequenceMadxEval(vref,mref,sref).eval
+def from_cpymad_with_dependencies(madx: Madx, seq_name: str, energy: float, particle: str, dependencies: bool = False):
+    variables, sequence, elements_dict = from_cpymad(madx, seq_name)
+    beam = Beam(energy=energy, particle=particle)
+    lattice = Lattice(seq_name, elements=elements_dict, sequence=sequence, global_variables=variables, beam=beam)
+    
+    madeval = XSequenceMadxEval(lattice._globals, lattice._math, lattice._elements).eval
     
     for name,par in madx.globals.cmdpar.items():
         if par.expr is not None:
-            vref[name]=madeval(par.expr)
+            lattice._globals[name]=madeval(par.expr)
 
     for elem in madx.sequence[seq_name].elements:
         name = elem.name
         for parname, par in elem.cmdpar.items():
-            if par.expr is not None:
-                if par.dtype==12: # handle lists
-                    for ii,ee in enumerate(par.expr):
-                        if ee is not None:
-                            sref[name]._set_from_key(parname, madeval(ee))
-                else:
-                    if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
-                        parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
-                    set_from_key(sref[name], parname, madeval(par.expr))
+            if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
+                parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
+            if parname in lattice.elements[name].REQUIREMENTS:
+                if par.expr is not None:
+                    if par.dtype==12: # handle lists
+                        for ii,ee in enumerate(par.expr):
+                            if ee is not None:
+                                lattice._elements[name]._set_from_key(parname, madeval(ee))
+                    else:
+                        if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
+                            parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
+                        setattr(lattice._elements[name], parname, madeval(par.expr))
 
-    return manager, vref, mref, sref, sequence_dict
+    for node in lattice.sequence:
+        ref_element = node.reference_element
+        if not ref_element == '':
+            node.reference = lattice.sequence[find_reference_node_idx(sequence, ref_element)].location
+
+    return lattice
 
 
-def to_cpymad(seq_name, energy, sequence):
+def to_cpymad(lattice):
     madx = Madx()
     madx.option(echo=False, info=False, debug=False)
     seq_command = ''
     
-    for name, element in sequence[1:-1].items():
-        cpymad_element_conversion.to_cpymad(element, madx)
-        if len(element.position_data.reference_element) > 0:
-            seq_command += f'{name}, at={element.position_data.location}, from={element.position_data.reference_element}  ;\n'
+    for node in lattice.sequence[1:-1]:
+        cpymad_element_conversion.to_cpymad(lattice.elements[node.element_name], madx)
+        if len(node.reference_element) > 0:
+            seq_command += f'{node.element_name}, at={node.location}, from={node.reference_element}  ;\n'
         else:
-            seq_command += f'{name}, at={element.position_data.location} ;\n'
+            seq_command += f'{node.element_name}, at={node.location} ;\n'
 
-    madx.input(f'{seq_name}: sequence, refer=centre, l={sequence[sequence.names[-1]].position_data.end};')
+    madx.input(f'{lattice.name}: sequence, refer=centre, l={lattice.sequence[-1].end};')
     madx.input(seq_command)
     madx.input('endsequence;')
-    madx.command.beam(particle='electron', energy=energy)
+    madx.command.beam(particle='electron', energy=lattice.beam.energy)
     return madx
-
-

@@ -34,19 +34,15 @@ def attr_mapping_to_cpymad(element_dict):
         try: element_dict[cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD[key]] = element_dict.pop(key) 
         except: KeyError
 
-    if 'knl' in element_dict:
-        element_dict['knl'] = list(element_dict['knl'])
-    if 'ksl' in element_dict:
-        element_dict['ksl'] = list(element_dict['ksl'])
- 
     if 'kn' in element_dict:
-        element_dict.pop('kn')
+        element_dict['knl'] = list(element_dict.pop('kn')*element_dict['l'])
     if 'ks' in element_dict:
-        element_dict.pop('ks')
+        element_dict['ksl'] = list(element_dict.pop('ks')*element_dict['l'])
     return element_dict
 
 
 def to_cpymad(xs_element, madx):
+    print(xs_element)
     base_type = xs_element.__class__.__name__
     madx_base_type = base_type.lower()
     if base_type == 'SectorBend':
@@ -55,8 +51,19 @@ def to_cpymad(xs_element, madx):
         madx_base_type = 'rbend'
     if base_type == 'ThinMultipole':
         madx_base_type = 'multipole'
-
+    
     el_dict = xs_element.get_dict()
+    
+    if base_type == 'Quadrupole':
+        el_dict['k1'] = xs_element.k1
+        el_dict['k1s'] = xs_element.k1s
+    elif base_type == 'Sextupole':
+        el_dict['k2'] = xs_element.k2
+        el_dict['k2s'] = xs_element.k2s
+    elif base_type == 'Octupole':
+        el_dict['k3'] = xs_element.k3
+        el_dict['k3s'] = xs_element.k3s
+
     el_dict = attr_mapping_to_cpymad(el_dict)
     mapped_attr = {k:el_dict[k] for k in cpymad_properties.ELEM_DICT[madx_base_type] if k in el_dict}
     if madx_base_type == 'rbend':

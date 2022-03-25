@@ -6,30 +6,29 @@ This is a Python3 module containing base Lattice class to manipulate accelerator
 """
 
 import at
-import scipy
+import scipy.constants
 import xsequence.elements as xe
-from collections import OrderedDict
-from xsequence.lattice_baseclasses import Line
-from xconverters.pyat import pyat_element_conversion
+from xsequence.lattice import Lattice
+from xsequence.lattice_baseclasses import Node, NodesList
+from xconverters.pyat import element_from_pyat, element_to_pyat
+from typing import List, Tuple, Dict
 
 
-def from_pyat(pyat_lattice: at.Lattice) -> OrderedDict:
-    seq = OrderedDict()
+def from_pyat(pyat_lattice: at.Lattice) -> Tuple[NodesList, Dict[str, xe.BaseElement]]:
+    """ Import lattice from pyat to create xsequence of Nodes and dict of elements """
+    sequence = NodesList()
+    elements = {}
     for el in pyat_lattice:
         name = el.FamName
-        if name in seq.keys():
-            n = 1
-            while f"{name}_{n}" in seq.keys():
-                n += 1
-            name = f"{name}_{n}"
-        seq[name] = pyat_element_conversion.convert_pyat_element(el)
-    return seq 
+        elements[name] = element_from_pyat.from_pyat(el)
+        sequence.append(Node(element_name=name, length=el.Length))
+    return sequence, elements 
 
 
-def to_pyat(seq_name: str, energy: float, line: Line) -> at.Lattice:
-    
-    seq = [pyat_element_conversion.to_pyat(line[element]) for element in line]
-    pyat_lattice = at.Lattice(seq, name=seq_name, key='ring', energy=energy)
+def to_pyat(lattice: Lattice) -> at.Lattice:
+    """ Export xsequence Lattice to pyat Lattice instance """
+    line = [element_to_pyat.to_pyat(lattice._line_elements[node.element_name]) for node in lattice._line]
+    pyat_lattice = at.Lattice(line, name=lattice.name, key='ring', energy=lattice.beam.energy*1e9)
     for cav in at.get_elements(pyat_lattice, at.RFCavity):
         cav.Frequency = cav.HarmNumber*scipy.constants.c/pyat_lattice.circumference 
     return pyat_lattice
