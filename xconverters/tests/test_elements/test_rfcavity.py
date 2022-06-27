@@ -1,7 +1,7 @@
 import xsequence.elements as xe
 import xsequence.elements_dataclasses as xed
-from xconverters.cpymad import cpymad_element_conversion
-from xconverters.pyat import pyat_element_conversion
+from xconverters.cpymad import convert_cpymad_elements
+from xconverters.pyat import convert_pyat_elements
 from pytest import mark
 from cpymad.madx import Madx
 
@@ -17,20 +17,20 @@ def test_rfcavity(name, l, voltage, frequency, lag, energy):
     assert q.voltage == voltage
     assert q.frequency == frequency
     assert q.lag == lag
-    
+
     #CPYMAD
     md = Madx()
-    q_conv = cpymad_element_conversion.convert_cpymad_element(cpymad_element_conversion.to_cpymad(q, md))
+    q_conv = convert_cpymad_elements.from_cpymad(convert_cpymad_elements.to_cpymad(md, q))
     assert q == q_conv
 
     #PYAT
     q = xe.RFCavity(name, length=l, voltage=voltage, frequency=frequency, lag=lag, energy=energy, pyat_data=xed.PyatData(NumIntSteps=10, PassMethod='StrMPoleSymplectic4Pass'))
-    pyat_rf = pyat_element_conversion.to_pyat(q)
+    pyat_rf = convert_pyat_elements.to_pyat(q)
     assert pyat_rf.FamName == q.name
     assert pyat_rf.Length == q.length
     assert pyat_rf.Voltage == q.voltage * 1e6
     assert pyat_rf.Frequency == q.frequency * 1e6
     assert pyat_rf.TimeLag == q.lag
     assert pyat_rf.Energy == energy * 1e9
-    q_pyat = pyat_element_conversion.convert_pyat_element(pyat_rf)
+    q_pyat = convert_pyat_elements.from_pyat(pyat_rf)
     assert q == q_pyat

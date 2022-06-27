@@ -17,7 +17,7 @@ from lark import Lark, Transformer, v_args
 from xsequence.lattice import Lattice
 from xsequence.lattice_baseclasses import Node, NodesList
 import xsequence.elements_dataclasses as xed
-from xconverters.cpymad import cpymad_element_conversion, cpymad_properties
+from xconverters.cpymad import convert_cpymad_elements
 from xsequence.lattice_baseclasses import Beam
 
 calc_grammar = """
@@ -113,7 +113,7 @@ def from_cpymad(madx: Madx, seq_name: str):
         element_data={}
         for parname, par in element.cmdpar.items():
             element_data[parname]=par.value
-        elements_dict[element.name] = cpymad_element_conversion.convert_cpymad_element(element) 
+        elements_dict[element.name] = convert_cpymad_elements.from_cpymad(element) 
         sequence.append(Node(element_name=element.name, location=element['at'], reference_element=element['from']))
 
     for el in sequence:
@@ -131,27 +131,29 @@ def from_cpymad_with_dependencies(madx: Madx, seq_name: str, energy: float, part
     beam = Beam(energy=energy, particle=particle)
     lattice = Lattice(seq_name, elements=elements_dict, sequence=sequence, global_variables=variables, beam=beam)
     
-    madeval = XSequenceMadxEval(lattice._globals, lattice._math, lattice._elements).eval
+    # madeval = XSequenceMadxEval(lattice._globals, lattice._math, lattice._elements).eval
     
-    for name,par in madx.globals.cmdpar.items():
-        if par.expr is not None:
-            lattice._globals[name]=madeval(par.expr)
+    # for name,par in madx.globals.cmdpar.items():
+    #     if par.expr is not None:
+    #         lattice._globals[name]=madeval(par.expr)
 
-    for elem in madx.sequence[seq_name].elements:
-        name = elem.name
-        for parname, par in elem.cmdpar.items():
-            if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
-                parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
-            if parname in lattice.elements[name].REQUIREMENTS:
-                if par.expr is not None:
-                    if par.dtype==12: # handle lists
-                        for ii,ee in enumerate(par.expr):
-                            if ee is not None:
-                                lattice._elements[name]._set_from_key(parname, madeval(ee))
-                    else:
-                        if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
-                            parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
-                        setattr(lattice._elements[name], parname, madeval(par.expr))
+    # for elem in madx.sequence[seq_name].elements:
+    #     name = elem.name
+    #     print("CHECK DEPENDENCIES!!")
+    #     wurstel
+    #     # for parname, par in elem.cmdpar.items():
+    #     #     if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
+    #     #         parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
+    #     #     if parname in lattice.elements[name].REQUIREMENTS:
+    #     #         if par.expr is not None:
+    #     #             if par.dtype==12: # handle lists
+    #     #                 for ii,ee in enumerate(par.expr):
+    #     #                     if ee is not None:
+    #     #                         lattice._elements[name]._set_from_key(parname, madeval(ee))
+    #     #             else:
+    #     #                 if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
+    #     #                     parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
+    #     #                 setattr(lattice._elements[name], parname, madeval(par.expr))
 
     for node in lattice.sequence:
         ref_element = node.reference_element
@@ -167,7 +169,7 @@ def to_cpymad(lattice):
     seq_command = ''
     
     for node in lattice.sequence[1:-1]:
-        cpymad_element_conversion.to_cpymad(lattice.elements[node.element_name], madx)
+        convert_cpymad_elements.to_cpymad(madx, lattice.elements[node.element_name])
         if len(node.reference_element) > 0:
             seq_command += f'{node.element_name}, at={node.location}, from={node.reference_element}  ;\n'
         else:

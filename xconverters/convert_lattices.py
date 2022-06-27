@@ -10,7 +10,7 @@ from xconverters.xtrack import xtrack_lattice_conversion
 
 """ MADX """
 
-def from_cpymad(madx, seq_name, energy=None, particle='electron', dependencies=True):
+def from_cpymad(madx, seq_name, energy=None, particle='electron', dependencies=False):
     if dependencies:
         lattice = cpymad_lattice_conversion.from_cpymad_with_dependencies(madx, seq_name, energy, particle)
         return lattice

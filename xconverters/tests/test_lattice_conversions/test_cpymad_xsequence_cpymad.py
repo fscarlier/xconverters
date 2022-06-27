@@ -6,7 +6,7 @@ This is a test module to test consistency for converting back and forth from cpy
 """
 
 import pytest
-from xconverters import convert_lattices  
+from xconverters import convert_lattices
 from xconverters import conv_utils
 from pathlib import Path
 
@@ -16,7 +16,7 @@ TEST_SEQ_DIR = Path(__file__).parent.parent / "test_sequences"
 def example_cpymad_xsequence_cpymad():
     """
     Create cpymad instance from import and export through xsequence
-    
+
     Returns:
         Old and new twiss tables from cpymad
     """
@@ -66,7 +66,7 @@ def example_cpymad_xsequence_cpymad_coll():
     """
     Create cpymad instance from import and export through xsequence from lattice
     with collimators
-    
+
     Returns:
         Old and new twiss tables from cpymad
     """

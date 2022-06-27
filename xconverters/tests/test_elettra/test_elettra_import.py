@@ -7,7 +7,7 @@ This is a test module to test consistency for converting back and forth from cpy
 
 import pytest
 from cpymad.madx import Madx
-from xconverters import convert_lattices  
+from xconverters import convert_lattices
 from xconverters import conv_utils
 from pathlib import Path
 
@@ -17,29 +17,29 @@ TEST_SEQ_DIR = Path(__file__).parent.parent / "test_sequences"
 def example_cpymad_xsequence_cpymad():
     """
     Create cpymad instance from import and export through xsequence
-    
+
     Returns:
         Old and new twiss tables from cpymad
     """
-    
-    
+
+
     NRJ = 2.4
     seq_name = 'ring'
-    madx_lattice = conv_utils.create_cpymad_from_file("../test_sequences/elettra_thick.seq", energy=NRJ)
+    madx_lattice = conv_utils.create_cpymad_from_file(str(TEST_SEQ_DIR / "elettra_thick.seq"), energy=NRJ)
     madx_lattice.command.beam(particle='electron', energy=NRJ)
     madx_lattice.use(seq_name)
 
     xsequence_lattice = convert_lattices.from_cpymad(madx_lattice, seq_name, energy=NRJ, dependencies=False)
     madx_lattice_new = convert_lattices.to_cpymad(xsequence_lattice)
-    
+
     madx_lattice.command.beam(particle='electron')
     madx_lattice.use(seq_name)
     twiss = madx_lattice.twiss(sequence=seq_name)
-    
+
     madx_lattice_new.command.beam(particle='electron')
     madx_lattice_new.use(seq_name)
     twiss_new = madx_lattice_new.twiss(sequence=seq_name)
-    
+
     return twiss, twiss_new
 
 def test_cpymad_xsequence_cpymad_s(example_cpymad_xsequence_cpymad):

@@ -10,7 +10,7 @@ import scipy.constants
 import xsequence.elements as xe
 from xsequence.lattice import Lattice
 from xsequence.lattice_baseclasses import Node, NodesList
-from xconverters.pyat import element_from_pyat, element_to_pyat
+from xconverters.pyat import convert_pyat_elements
 from typing import List, Tuple, Dict
 
 
@@ -20,14 +20,14 @@ def from_pyat(pyat_lattice: at.Lattice) -> Tuple[NodesList, Dict[str, xe.BaseEle
     elements = {}
     for el in pyat_lattice:
         name = el.FamName
-        elements[name] = element_from_pyat.from_pyat(el)
+        elements[name] = convert_pyat_elements.from_pyat(el)
         sequence.append(Node(element_name=name, length=el.Length))
     return sequence, elements 
 
 
 def to_pyat(lattice: Lattice) -> at.Lattice:
     """ Export xsequence Lattice to pyat Lattice instance """
-    line = [element_to_pyat.to_pyat(lattice._line_elements[node.element_name]) for node in lattice._line]
+    line = [convert_pyat_elements.to_pyat(lattice._line_elements[node.element_name]) for node in lattice._line]
     pyat_lattice = at.Lattice(line, name=lattice.name, key='ring', energy=lattice.beam.energy*1e9)
     for cav in at.get_elements(pyat_lattice, at.RFCavity):
         cav.Frequency = cav.HarmNumber*scipy.constants.c/pyat_lattice.circumference 
