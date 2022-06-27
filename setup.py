@@ -44,7 +44,7 @@ DEPENDENCIES = [
     "accelerator-toolbox",
     "xtrack@https://github.com/xsuite/xtrack/tarball/main",
     "xdeps@https://github.com/xsuite/xdeps/tarball/main",
-    "xsequence @ git+http://github.com/fscarlier/xsequence.git",
+    "xsequence @ git+http://github.com/fscarlier/xsequence.git@nodes",
     "lark",
     "rich",
     ]
