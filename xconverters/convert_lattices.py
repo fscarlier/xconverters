@@ -8,6 +8,7 @@ from xconverters.bmad_utils import bmad_lattice_conversion
 from xconverters.xtrack_utils import xtrack_lattice_conversion
 
 
+
 """ MADX """
 
 def from_cpymad(madx, seq_name, energy=None, particle='electron', dependencies=False):
