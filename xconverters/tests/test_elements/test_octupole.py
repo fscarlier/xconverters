@@ -1,7 +1,7 @@
 import xsequence.elements as xe
 import xsequence.elements_dataclasses as xed
-from xconverters.cpymad import convert_cpymad_elements
-from xconverters.pyat import convert_pyat_elements
+from xconverters.cpymad_utils import convert_cpymad_elements
+from xconverters.pyat_utils import convert_pyat_elements
 from pytest import mark
 from cpymad.madx import Madx
 

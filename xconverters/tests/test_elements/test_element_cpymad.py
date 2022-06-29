@@ -6,7 +6,7 @@ This is a test module to test correct element imports from cpymad.
 """
 
 import pytest
-from xconverters.cpymad import convert_cpymad_elements
+from xconverters.cpymad_utils import convert_cpymad_elements
 from cpymad.madx import Madx
 from pathlib import Path
 TEST_SEQ_DIR = Path(__file__).parent.parent / "test_sequences"

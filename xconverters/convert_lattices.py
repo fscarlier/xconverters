@@ -1,11 +1,11 @@
 from xsequence.lattice import Lattice
 from xsequence.lattice_baseclasses import Beam
-from xconverters.cpymad import cpymad_lattice_conversion
-from xconverters.pyat import pyat_lattice_conversion
-from xconverters.sad import sad_lattice_conversion
-from xconverters.pyat import pyat_lattice_conversion
-from xconverters.bmad import bmad_lattice_conversion
-from xconverters.xtrack import xtrack_lattice_conversion
+from xconverters.cpymad_utils import cpymad_lattice_conversion
+from xconverters.pyat_utils import pyat_lattice_conversion
+from xconverters.sad_utils import sad_lattice_conversion
+from xconverters.pyat_utils import pyat_lattice_conversion
+from xconverters.bmad_utils import bmad_lattice_conversion
+from xconverters.xtrack_utils import xtrack_lattice_conversion
 
 
 """ MADX """
@@ -17,7 +17,7 @@ def from_cpymad(madx, seq_name, energy=None, particle='electron', dependencies=F
     else:
         variables, sequence, elements_dict = cpymad_lattice_conversion.from_cpymad(madx, seq_name)
         beam = Beam(energy=energy, particle=particle)
-        return Lattice(seq_name, sequence=sequence, elements=elements_dict, beam=beam, key='sequence') 
+        return Lattice(seq_name, sequence=sequence, elements=elements_dict, beam=beam, key='sequence')
 
 
 def to_cpymad(lattice):
@@ -57,11 +57,11 @@ def to_bmad(lattice, file_path=None):
         f.write(bmad_lattice_conversion.to_bmad(lattice.name, lattice.beam, lattice.line))
         f.close()
     else:
-        return bmad_lattice_conversion.to_bmad(lattice.name, lattice.beam, lattice.line) 
+        return bmad_lattice_conversion.to_bmad(lattice.name, lattice.beam, lattice.line)
 
 
 """ XTRACK """
 
 def to_xtrack(lattice):
-    xtrack_lattice_conversion.to_xtrack(lattice.sliced.line) 
+    xtrack_lattice_conversion.to_xtrack(lattice.sliced.line)
 
