@@ -7,8 +7,8 @@ This is a test module to test correct element imports from cpymad.
 
 import pytest
 import xsequence.elements as xe
-from xconverters.cpymad import convert_cpymad_elements
-from xconverters.cpymad import convert_cpymad_elements
+from xconverters.cpymad_utils import convert_cpymad_elements
+from xconverters.cpymad_utils import convert_cpymad_elements
 from cpymad.madx import Madx
 from pathlib import Path
 from xconverters import conv_utils
