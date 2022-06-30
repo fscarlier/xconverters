@@ -11,7 +11,7 @@ numpy = "^1.19.0"
 pandas = "^1.0"
 xtrack = {git = "https://github.com/xsuite/xtrack.git", branch="main"}
 xdeps = {git = "https://github.com/xsuite/xdeps.git", branch="main"}
-xsequence = {git = "https://github.com/fscarlier/xsequence.git", branch="nodes"}
+xsequence = {git = "https://github.com/fscarlier/xsequence.git", branch="main"}
 cpymad = "^1.8.1"
 lark = "^1.1.2"
 rich = "^12.4.4"
