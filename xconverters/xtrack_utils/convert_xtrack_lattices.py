@@ -1,9 +1,7 @@
-"""
-Module xsequence.lattice
-------------------
-:author: Felix Carlier (fcarlier@cern.ch)
-This is a Python3 module containing base Lattice class to manipulate accelerator sequences.
-"""
+# copyright ############################### #
+# This file is part of the Xtrack Package.  #
+# Copyright (c) CERN, 2021.                 #
+# ######################################### #
 
 import xtrack
 from xsequence.lattice import Lattice
