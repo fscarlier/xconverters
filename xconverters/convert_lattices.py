@@ -1,3 +1,9 @@
+# copyright #################################### #
+# This file is part of the Xconverters Package.  #
+# Copyright (c) CERN, 2022.                      #
+# ############################################## #
+
+
 from xsequence.lattice import Lattice
 from xsequence.lattice_baseclasses import Beam
 from xconverters.cpymad_utils import convert_cpymad_lattices
@@ -64,6 +70,10 @@ def to_bmad(lattice, file_path=None):
 
 """ XTRACK """
 
+def from_xtrack(xt_lattice):
+    return convert_xtrack_lattices.from_xtrack(xt_lattice)
+
+
 def to_xtrack(lattice):
-    convert_xtrack_lattices.to_xtrack(lattice.sliced.line)
+    return convert_xtrack_lattices.to_xtrack(lattice.sliced.line)
 

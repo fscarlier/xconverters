@@ -1,2 +1,0 @@
-option, echo=false, info=false, debug=false;
-call, file="/Users/felixcarlier/git-projects/xconverters/xconverters/tests/test_sequences/collimators.seq";
