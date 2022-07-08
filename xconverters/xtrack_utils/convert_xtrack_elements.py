@@ -16,15 +16,21 @@ Import xtrack element to xsequence
 """
 
 
-def drift_from_xtrack(element: xl.Drift):
+def drift_from_xtrack(element: xl.Drift, ele_name: str):
+    if not ele_name:
+        ele_name = 'drift'
+
     if element.length == 0:
         return xe.Marker('Marker')
     else:
         kwargs = {'length':element.length}
-        return xe.Drift(**kwargs)
+        return xe.Drift(ele_name, **kwargs)
 
 
-def thin_multipole_from_xtrack(element: xl.Multipole):
+def thin_multipole_from_xtrack(element: xl.Multipole, ele_name: str):
+    if not ele_name:
+        ele_name = 'multipole'
+
     knl = element.knl
     ksl = element.ksl
     knl[0] = element.hxl
@@ -33,26 +39,35 @@ def thin_multipole_from_xtrack(element: xl.Multipole):
     kwargs = {'knl':knl,
               'ksl':ksl,
               'radiation_length':element.length}
-    return xe.Multipole(**kwargs)
+    return xe.ThinMultipole(ele_name, **kwargs)
 
 
-def rfcavity_from_xtrack(element: xl.Cavity):
+def rfcavity_from_xtrack(element: xl.Cavity, ele_name: str):
+    if not ele_name:
+        ele_name = 'rfcavity'
+
     kwargs = {'voltage':element.voltage/1e6,
               'frequency':element.frequency/1e6,
               'lag':element.lag}
-    return xe.RFCavity(**kwargs)
+    return xe.RFCavity(ele_name, **kwargs)
 
 
-def dipole_edge_from_xtrack(element: xl.DipoleEdge):
+def dipole_edge_from_xtrack(element: xl.DipoleEdge, ele_name: str):
+    if not ele_name:
+        ele_name = 'dipedge'
+
     kwargs = {'h':element.h,
               'edge_angle':element.e1}
 # NEED TO ADD
 #               'hgap'  [m]: Equivalent gap.
 #               'fint'  [] : Fringe integral.
-    return xe.DipoleEdge(**kwargs)
+    return xe.DipoleEdge(ele_name, **kwargs)
 
 
-def rfmultipole_from_xtrack(element: xl.RFMultipole):
+def rfmultipole_from_xtrack(element: xl.RFMultipole, ele_name: str):
+    if not ele_name:
+        ele_name = 'rfmultipole'
+
     kwargs = {'voltage':element.voltage/1e6,
               'frequency':element.frequency/1e6,
               'knl':element.knl,
@@ -60,11 +75,11 @@ def rfmultipole_from_xtrack(element: xl.RFMultipole):
               'pn':element.pn,
               'ps':element.ps,
               'lag':element.lag}
-    return xe.ThinRFMultipole(**kwargs)
+    return xe.ThinRFMultipole(ele_name, **kwargs)
 
 
-def convert_element_from_xtrack(xtrack_element: xe.BaseElement):
-    return FROM_XTRACK_CONV[xtrack_element.__class__.__name__](xtrack_element)
+def from_xtrack(xtrack_element: xe.BaseElement, ele_name: str = None):
+    return FROM_XTRACK_CONV[xtrack_element.__class__.__name__](xtrack_element, ele_name)
 
 
 FROM_XTRACK_CONV = {'Drift':       drift_from_xtrack         ,
@@ -126,7 +141,7 @@ def rfmultipole_to_xtrack(element: xe.ThinRFMultipole):
     return xl.RFMultipole(**kwargs)
 
 
-def convert_element_to_xtrack(xe_element: xe.BaseElement):
+def to_xtrack(xe_element: xe.BaseElement):
     return TO_XTRACK_CONV[xe_element.__class__.__name__](xe_element)
 
 
