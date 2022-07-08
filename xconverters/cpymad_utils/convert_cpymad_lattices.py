@@ -125,18 +125,22 @@ def from_cpymad(madx: Madx, seq_name: str):
 
 
 def from_cpymad_with_dependencies(madx: Madx, seq_name: str, energy: float, particle: str, dependencies: bool = False):
+    from xdeps.madxutils import MadxEval
+    
     variables, sequence, elements_dict = from_cpymad(madx, seq_name)
     beam = Beam(energy=energy, particle=particle)
     lattice = Lattice(seq_name, elements=elements_dict, sequence=sequence, global_variables=variables, beam=beam)
-
-    madeval = XSequenceMadxEval(lattice._globals, lattice._math, lattice._elements).eval
+    
+    madeval = MadxEval(lattice._globals, lattice._math, lattice._elements).eval
 
     for name,par in madx.globals.cmdpar.items():
         if par.expr is not None:
             lattice._globals[name]=madeval(par.expr)
-
+    print('dep start')
+    
     for elem in madx.sequence[seq_name].elements:
         name = elem.name
+        req_attr = convert_cpymad_elements.FROM_CPYMAD[elem.base_type.name].req_attr
         for parname, par in elem.cmdpar.items():
             if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
                 parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
@@ -151,10 +155,12 @@ def from_cpymad_with_dependencies(madx: Madx, seq_name: str, energy: float, part
                             parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
                         setattr(lattice._elements[name], parname, madeval(par.expr))
 
+    print('dep location nodes')
     for node in lattice.sequence:
         ref_element = node.reference_element
         if not ref_element == '':
             node.reference = lattice.sequence[find_reference_node_idx(sequence, ref_element)].location
+    print('dep end')
 
     return lattice
 
