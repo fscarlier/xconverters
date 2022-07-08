@@ -6,6 +6,40 @@
 import cpymad.madx as Madx
 import xsequence.elements as xe
 
+# Element attribute dicts; {xsequence:cpymad}
+# Currently used for dependency translation
+
+REQ_ATTR = {'length':'l',
+            'reference_element':'from',
+            'location':'at',
+            'aperture_size':'aperture',
+            'aperture_type':'apertype',
+            'radiation_length':'lrad',
+            'angle': 'angle',
+            'e1': 'e1',
+            'e2': 'e2',
+            'edge_angle': 'e1',
+            'h': 'h',
+            'k0': 'k0',
+            'k1': 'k1',
+            'k1s': 'k1s',
+            'k2': 'k2',
+            'k2s': 'k2s',
+            'k3': 'k3',
+            'k3s': 'k3s',
+            'knl': 'knl',
+            'ksl': 'ksl',
+            'ks': 'ks',
+            'ksi': 'ksi',
+            'voltage': 'volt',
+            'frequency': 'freq',
+            'lag': 'lag',
+            'kick': 'kick',
+            'hkick': 'hkick',
+            'vkick': 'vkick'}
+
+REQ_ATTR_INVERTED = {val: key for key, val in REQ_ATTR.items()}
+
 
 """
 Import functions from cpymad
@@ -16,32 +50,32 @@ def get_base_dict_from_cpymad(cpymad_element):
                 'length' : cpymad_element.l,
                 'reference_element' : getattr(cpymad_element, 'from'),
                 }
-    
+
     if cpymad_element.at < 1e12:
         base_dict.update({
                           'location' : getattr(cpymad_element, 'at'),
-                         }) 
-    
+                         })
+
     if cpymad_element.aperture[0] > 0:
         base_dict.update({
                     'aperture_size' : cpymad_element.aperture,
                     'aperture_type' : cpymad_element.apertype,
-                    }) 
-    try: 
+                    })
+    try:
         lrad = cpymad_element.lrad
         if lrad > 0:
             base_dict.update({
                         'radiation_length' : lrad,
-                        }) 
+                        })
     except: AttributeError
 
-    
-    return base_dict 
+
+    return base_dict
 
 
 def convert_marker_from_cpymad(cpymad_element, kw):
     return xe.Marker(cpymad_element.name, **kw)
-    
+
 
 def convert_drift_from_cpymad(cpymad_element, kw):
     return xe.Drift(cpymad_element.name, **kw)
@@ -83,7 +117,7 @@ def convert_rectangularbend_from_cpymad(cpymad_element, kw):
                 'e2': cpymad_element.e2,
                 })
     return xe.RectangularBend(cpymad_element.name, **kw)
-    
+
 
 def convert_dipoleedge_from_cpymad(cpymad_element, kw):
     kw.update({
@@ -136,8 +170,8 @@ def convert_octupole_from_cpymad(cpymad_element, kw):
 def convert_rfcavity_from_cpymad(cpymad_element, kw):
     kw.update({
                'voltage': cpymad_element.volt,
-               'frequency': cpymad_element.freq, 
-               'lag': cpymad_element.lag, 
+               'frequency': cpymad_element.freq,
+               'lag': cpymad_element.lag,
                })
     return xe.RFCavity(cpymad_element.name, **kw)
 
@@ -166,7 +200,7 @@ def convert_tkicker_from_cpymad(cpymad_element, kw):
 
 def convert_thinmultipole_from_cpymad(cpymad_element, kw):
     kw.update({
-               'knl': cpymad_element.knl, 
+               'knl': cpymad_element.knl,
                'ksl': cpymad_element.ksl,
                })
     return xe.ThinMultipole(cpymad_element.name, **kw)
@@ -174,7 +208,7 @@ def convert_thinmultipole_from_cpymad(cpymad_element, kw):
 
 def convert_thinsolenoid_from_cpymad(cpymad_element, kw):
     kw.update({
-               'ks': cpymad_element.ks,  
+               'ks': cpymad_element.ks,
                'ksi': cpymad_element.ksi,
                })
     return xe.ThinSolenoid(cpymad_element.name, **kw)
@@ -183,8 +217,8 @@ def convert_thinsolenoid_from_cpymad(cpymad_element, kw):
 def convert_thinrfmultipole_from_cpymad(cpymad_element, kw):
     kw.update({
                'voltage': cpymad_element.volt,
-               'frequency': cpymad_element.freq, 
-               'lag': cpymad_element.lag, 
+               'frequency': cpymad_element.freq,
+               'lag': cpymad_element.lag,
                })
     return xe.ThinRFMultipole(cpymad_element.name, **kw)
 
@@ -226,14 +260,14 @@ def get_base_dict_to_cpymad(xel: xe.BaseElement):
     base_dict = {
                 'l' : xel.length,
                 }
-    
+
     try: base_dict.update({'lrad' : xel.radiation_length})
     except: KeyError
     try: base_dict.update({'aperture' : xel.aperture_size})
     except: KeyError
     try: base_dict.update({'apertype' : xel.aperture_type})
     except: KeyError
-    return base_dict 
+    return base_dict
 
 
 def convert_marker_to_cpymad(madx: Madx, kw: dict, xel: xe.Marker):
@@ -334,8 +368,8 @@ def convert_octupole_to_cpymad(madx: Madx, kw: dict, xel: xe.Octupole):
 def convert_rfcavity_to_cpymad(madx: Madx, kw: dict, xel: xe.RFCavity):
     kw.update({
                'volt': xel.voltage,
-               'freq': xel.frequency, 
-               'lag': xel.lag, 
+               'freq': xel.frequency,
+               'lag': xel.lag,
                })
     return madx.command['rfcavity'].clone(xel.name, **kw)
 
@@ -364,7 +398,7 @@ def convert_tkicker_to_cpymad(madx: Madx, kw: dict, xel: xe.TKicker):
 
 def convert_thinmultipole_to_cpymad(madx: Madx, kw: dict, xel: xe.ThinMultipole):
     kw.update({
-               'knl': xel.knl, 
+               'knl': xel.knl,
                'ksl': xel.ksl,
                })
     return madx.command['multipole'].clone(xel.name, **kw)
@@ -372,7 +406,7 @@ def convert_thinmultipole_to_cpymad(madx: Madx, kw: dict, xel: xe.ThinMultipole)
 
 def convert_thinsolenoid_to_cpymad(madx: Madx, kw: dict, xel: xe.ThinSolenoid):
     kw.update({
-               'ks': xel.ks,  
+               'ks': xel.ks,
                'ksi': xel.ksi,
                })
     return madx.command['thinsolenoid'].clone(xel.name, **kw)

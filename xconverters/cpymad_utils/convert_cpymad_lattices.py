@@ -140,10 +140,9 @@ def from_cpymad_with_dependencies(madx: Madx, seq_name: str, energy: float, part
     
     for elem in madx.sequence[seq_name].elements:
         name = elem.name
-        req_attr = convert_cpymad_elements.FROM_CPYMAD[elem.base_type.name].req_attr
         for parname, par in elem.cmdpar.items():
-            if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
-                parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
+            if parname in convert_cpymad_elements.REQ_ATTR_INVERTED:
+                parname = convert_cpymad_elements.REQ_ATTR_INVERTED[parname]
             if parname in lattice.elements[name].REQUIREMENTS:
                 if par.expr is not None:
                     if par.dtype==12: # handle lists
@@ -151,14 +150,12 @@ def from_cpymad_with_dependencies(madx: Madx, seq_name: str, energy: float, part
                             if ee is not None:
                                 lattice._elements[name]._set_from_key(parname, madeval(ee))
                     else:
-                        if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
-                            parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
                         setattr(lattice._elements[name], parname, madeval(par.expr))
 
     print('dep location nodes')
     for node in lattice.sequence:
         ref_element = node.reference_element
-        if not ref_element == '':
+        if ref_element != '':
             node.reference = lattice.sequence[find_reference_node_idx(sequence, ref_element)].location
     print('dep end')
 
