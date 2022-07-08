@@ -11,7 +11,7 @@ from xsequence.lattice_baseclasses import Beam
 
 """ MADX """
 
-def from_cpymad(madx, seq_name, energy=None, particle='electron', dependencies=False):
+def from_cpymad(madx, seq_name, energy=None, particle='electron', dependencies=True):
     from xconverters.cpymad_utils import convert_cpymad_lattices
     if dependencies:
         lattice = convert_cpymad_lattices.from_cpymad_with_dependencies(madx, seq_name, energy, particle)
@@ -27,7 +27,7 @@ def to_cpymad(lattice):
     return convert_cpymad_lattices.to_cpymad(lattice)
 
 
-def from_madx_seqfile(seq_file, seq_name, energy=None, dependencies=False, particle_type='electron'):
+def from_madx_seqfile(seq_file, seq_name, energy=None, dependencies=True, particle_type='electron'):
     from xconverters.cpymad_utils import convert_cpymad_lattices
     madx = convert_cpymad_lattices.from_madx_seqfile(seq_file, energy, particle_type)
     return from_cpymad(madx, seq_name, energy=energy, dependencies=dependencies)

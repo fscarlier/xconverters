@@ -15,15 +15,9 @@ from cpymad.madx import Madx
                   ( 'q3',    1.2,    -1.1, -0.3, 0.2),
                   ( 'q4',    0.2,     0.0,  0.3, 0.2)])
 def test_sectorbend(name, length, angle, e1, e2):
-    q = xe.SectorBend(name, length=length, angle=angle, e1=e1, e2=e2)
-    assert q.name == name
-    assert q.length == length
-    assert q.angle == angle
-    assert q.e1 == e1
-    assert q.e2 == e2
-
     #CPYMAD
     md = Madx()
+    q = xe.SectorBend(name, length=length, angle=angle, e1=e1, e2=e2)
     q_conv = convert_cpymad_elements.from_cpymad(convert_cpymad_elements.to_cpymad(md, q))
     assert q == q_conv
 
@@ -46,15 +40,9 @@ def test_sectorbend(name, length, angle, e1, e2):
                   ( 'q3',    1.2,    -1.1, -0.3, 0.2),
                   ( 'q4',    0.2,     0.0,  0.3, 0.2)])
 def test_rectangularbend(name, length, angle, e1, e2):
-    q = xe.RectangularBend(name, length=length, angle=angle, e1=e1, e2=e2)
-    assert q.name == name
-    assert q._chord_length == length
-    assert q.angle == angle
-    assert q._rbend_e1 == e1
-    assert q._rbend_e2 == e2
-
     #CPYMAD
     md = Madx()
+    q = xe.RectangularBend(name, length=length, angle=angle, e1=e1, e2=e2)
     q_conv = convert_cpymad_elements.from_cpymad(convert_cpymad_elements.to_cpymad(md, q))
     assert q == q_conv
 

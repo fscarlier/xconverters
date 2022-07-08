@@ -129,29 +129,27 @@ def from_cpymad_with_dependencies(madx: Madx, seq_name: str, energy: float, part
     beam = Beam(energy=energy, particle=particle)
     lattice = Lattice(seq_name, elements=elements_dict, sequence=sequence, global_variables=variables, beam=beam)
 
-    # madeval = XSequenceMadxEval(lattice._globals, lattice._math, lattice._elements).eval
+    madeval = XSequenceMadxEval(lattice._globals, lattice._math, lattice._elements).eval
 
-    # for name,par in madx.globals.cmdpar.items():
-    #     if par.expr is not None:
-    #         lattice._globals[name]=madeval(par.expr)
+    for name,par in madx.globals.cmdpar.items():
+        if par.expr is not None:
+            lattice._globals[name]=madeval(par.expr)
 
-    # for elem in madx.sequence[seq_name].elements:
-    #     name = elem.name
-    #     print("CHECK DEPENDENCIES!!")
-    #     wurstel
-    #     # for parname, par in elem.cmdpar.items():
-    #     #     if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
-    #     #         parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
-    #     #     if parname in lattice.elements[name].REQUIREMENTS:
-    #     #         if par.expr is not None:
-    #     #             if par.dtype==12: # handle lists
-    #     #                 for ii,ee in enumerate(par.expr):
-    #     #                     if ee is not None:
-    #     #                         lattice._elements[name]._set_from_key(parname, madeval(ee))
-    #     #             else:
-    #     #                 if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
-    #     #                     parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
-    #     #                 setattr(lattice._elements[name], parname, madeval(par.expr))
+    for elem in madx.sequence[seq_name].elements:
+        name = elem.name
+        for parname, par in elem.cmdpar.items():
+            if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
+                parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
+            if parname in lattice.elements[name].REQUIREMENTS:
+                if par.expr is not None:
+                    if par.dtype==12: # handle lists
+                        for ii,ee in enumerate(par.expr):
+                            if ee is not None:
+                                lattice._elements[name]._set_from_key(parname, madeval(ee))
+                    else:
+                        if parname in cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED:
+                            parname = cpymad_properties.DIFF_ATTRIBUTE_MAP_CPYMAD_INVERTED[parname]
+                        setattr(lattice._elements[name], parname, madeval(par.expr))
 
     for node in lattice.sequence:
         ref_element = node.reference_element

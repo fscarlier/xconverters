@@ -9,12 +9,9 @@ from cpymad.madx import Madx
                  [( 'q1', 1.2),
                   ( 'q2', 0.2)])
 def test_quadrupole_length(name, l):
-    q = xe.Quadrupole(name, length=l)
-    assert q.name == name
-    assert q.length == l
-
     #CPYMAD
     md = Madx()
+    q = xe.Quadrupole(name, length=l)
     q_conv = convert_cpymad_elements.from_cpymad(convert_cpymad_elements.to_cpymad(md, q))
     assert q == q_conv
 
@@ -31,13 +28,9 @@ def test_quadrupole_length(name, l):
                  [( 'q1', 1.2, -1.3),
                   ( 'q2', 0.2,  1.1)])
 def test_quadrupole_length_k1(name, l, k1):
-    q = xe.Quadrupole(name, length=l, k1=k1)
-    assert q.name == name
-    assert q.length == l
-    assert q.k1 == k1
-
     #CPYMAD
     md = Madx()
+    q = xe.Quadrupole(name, length=l, k1=k1)
     q_conv = convert_cpymad_elements.from_cpymad(convert_cpymad_elements.to_cpymad(md, q))
     assert q == q_conv
 
@@ -55,13 +48,9 @@ def test_quadrupole_length_k1(name, l, k1):
                  [( 'q1', 1.2, -1.3),
                   ( 'q2', 0.2,  1.1)])
 def test_quadrupole_length_k1s(name, l, k1s):
-    q = xe.Quadrupole(name, length=l, k1s=k1s)
-    assert q.name == name
-    assert q.length == l
-    assert q.k1s == k1s
-
     #CPYMAD
     md = Madx()
+    q = xe.Quadrupole(name, length=l, k1s=k1s)
     q_conv = convert_cpymad_elements.from_cpymad(convert_cpymad_elements.to_cpymad(md, q))
     assert q == q_conv
 
@@ -81,14 +70,9 @@ def test_quadrupole_length_k1s(name, l, k1s):
                   ( 'q3', 1.2, -1.1, -1.3),
                   ( 'q4', 0.2,  1.1,  1.3)])
 def test_quadrupole_length_k1_k1s(name, l, k1, k1s):
-    q = xe.Quadrupole(name, length=l, k1=k1, k1s=k1s)
-    assert q.name == name
-    assert q.length == l
-    assert q.k1 == k1
-    assert q.k1s == k1s
-
     #CPYMAD
     md = Madx()
+    q = xe.Quadrupole(name, length=l, k1=k1, k1s=k1s)
     q_conv = convert_cpymad_elements.from_cpymad(convert_cpymad_elements.to_cpymad(md, q))
     assert q == q_conv
 

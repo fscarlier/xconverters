@@ -11,15 +11,9 @@ from cpymad.madx import Madx
                  [( 'el1', 1.2,     -1.3,       123, 0.2,   320),
                   ( 'el2', 0.2,      1.1,       193, 0.5,   3e9)])
 def test_rfcavity(name, l, voltage, frequency, lag, energy):
-    q = xe.RFCavity(name, length=l, voltage=voltage, frequency=frequency, lag=lag)
-    assert q.name == name
-    assert q.length == l
-    assert q.voltage == voltage
-    assert q.frequency == frequency
-    assert q.lag == lag
-
     #CPYMAD
     md = Madx()
+    q = xe.RFCavity(name, length=l, voltage=voltage, frequency=frequency, lag=lag)
     q_conv = convert_cpymad_elements.from_cpymad(convert_cpymad_elements.to_cpymad(md, q))
     assert q == q_conv
 
