@@ -25,11 +25,13 @@ def drift_from_xtrack(element: xl.Drift):
 
 
 def thin_multipole_from_xtrack(element: xl.Multipole):
-    kwargs = {'knl':element.knl,
-              'ksl':element.ksl,
-# NEED TO ADD
-#               'hxl':element.hxl,
-#               'hyl':element.hyl,
+    knl = element.knl
+    ksl = element.ksl
+    knl[0] = element.hxl
+    ksl[0] = element.hyl
+
+    kwargs = {'knl':knl,
+              'ksl':ksl,
               'radiation_length':element.length}
     return xe.Multipole(**kwargs)
 
@@ -91,8 +93,8 @@ def drift_to_xtrack(element: xe.Drift):
 def thin_multipole_to_xtrack(element: xe.ThinMultipole):
     kwargs = {'knl':element.knl,
               'ksl':element.ksl,
-              'hxl':element.hxl,
-              'hyl':element.hyl,
+              'hxl':element.knl[0],
+              'hyl':element.ksl[0],
               'length':element.radiation_length}
     return xl.Multipole(**kwargs)
 
