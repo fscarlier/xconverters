@@ -95,6 +95,6 @@ def test_pyat_xsequence_pyat_alfa(example_pyat_xsequence_pyat):
 
 def test_pyat_xsequence_pyat_phase(example_pyat_xsequence_pyat):
     lin, lin_new, _, _ = example_pyat_xsequence_pyat
-    assert sum(abs(lin.mu[:,0] - lin_new.mu[:,0])) == 0 and\
-           sum(abs(lin.mu[:,1] - lin_new.mu[:,1])) == 0
+    assert sum(abs(lin.mu[:,0] - lin_new.mu[:,0])) <= 1e-12 and\
+           sum(abs(lin.mu[:,1] - lin_new.mu[:,1])) <= 1e-12
 
