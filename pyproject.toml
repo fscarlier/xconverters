@@ -8,9 +8,6 @@ authors = [
 license = "MIT"
 requires-python = ">=3.8"
 
-[tool.hatch.metadata]
-allow-direct-references = true
-
 dependencies = [
 "numpy >= 1.19.0", 
 "pandas >= 1.0",
@@ -26,6 +23,9 @@ dependencies = [
 "Sphinx >= 5.0.2", 
 ]
 
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [build-system]
 requires = ["hatchling"]
