@@ -27,10 +27,10 @@ def to_cpymad(lattice):
     return convert_cpymad_lattices.to_cpymad(lattice)
 
 
-def from_madx_seqfile(seq_file, seq_name, energy=None, dependencies=True, particle_type='electron'):
+def from_madx_seqfile(seq_file, seq_name, energy=None, dependencies=True, particle='electron'):
     from xconverters.cpymad_utils import convert_cpymad_lattices
-    madx = convert_cpymad_lattices.from_madx_seqfile(seq_file, energy, particle_type)
-    return from_cpymad(madx, seq_name, energy=energy, dependencies=dependencies)
+    madx = convert_cpymad_lattices.from_madx_seqfile(seq_file, seq_name, energy, particle)
+    return from_cpymad(madx, seq_name, energy=energy, particle=particle, dependencies=dependencies)
 
 
 def from_sad(sad_lattice, seq_name, energy=None):

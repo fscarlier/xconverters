@@ -56,11 +56,12 @@ def get_base_dict_from_cpymad(cpymad_element):
                           'location' : getattr(cpymad_element, 'at'),
                          })
 
-    if cpymad_element.aperture[0] > 0:
-        base_dict.update({
-                    'aperture_size' : cpymad_element.aperture,
-                    'aperture_type' : cpymad_element.apertype,
-                    })
+    if cpymad_element.base_type.name != 'drift':
+        if cpymad_element.aperture[0] > 0:
+            base_dict.update({
+                        'aperture_size' : cpymad_element.aperture,
+                        'aperture_type' : cpymad_element.apertype,
+                        })
     try:
         lrad = cpymad_element.lrad
         if lrad > 0:

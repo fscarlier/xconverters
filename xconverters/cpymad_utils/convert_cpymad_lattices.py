@@ -83,6 +83,8 @@ def from_madx_seqfile(seq_file, seq_name, energy: float, particle_type: str = 'e
     madx = Madx()
     madx.option(echo=False, info=False, debug=False)
     madx.call(file=seq_file)
+    madx.command.beam(particle=particle_type, energy=energy)
+    madx.use(seq_name)
     madx.input('SET, FORMAT="25.20e";')
     return madx
 
@@ -126,18 +128,18 @@ def from_cpymad(madx: Madx, seq_name: str):
 
 def from_cpymad_with_dependencies(madx: Madx, seq_name: str, energy: float, particle: str, dependencies: bool = False):
     from xdeps.madxutils import MadxEval
-    
+
     variables, sequence, elements_dict = from_cpymad(madx, seq_name)
     beam = Beam(energy=energy, particle=particle)
     lattice = Lattice(seq_name, elements=elements_dict, sequence=sequence, global_variables=variables, beam=beam)
-    
+
     madeval = MadxEval(lattice._globals, lattice._math, lattice._elements).eval
 
     for name,par in madx.globals.cmdpar.items():
         if par.expr is not None:
             lattice._globals[name]=madeval(par.expr)
     print('dep start')
-    
+
     for elem in madx.sequence[seq_name].elements:
         name = elem.name
         for parname, par in elem.cmdpar.items():
