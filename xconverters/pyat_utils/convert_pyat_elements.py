@@ -349,6 +349,16 @@ def convert_vkicker_to_pyat(xel: xe.VKicker):
                         **kw)
 
 
+def convert_kicker_to_pyat(xel: xe.TKicker):
+    kick_angle = (np.arcsin(xel.hkick), np.arcsin(xel.vkick))
+    kw = get_aperture_kwargs_to_pyat(xel)
+    kw.update(get_pass_method_to_pyat(xel))
+    return at.Corrector(family_name=xel.name,
+                        length=xel.length,
+                        kick_angle=kick_angle,
+                        **kw)
+
+
 def convert_tkicker_to_pyat(xel: xe.TKicker):
     kick_angle = (np.arcsin(xel.hkick), np.arcsin(xel.vkick))
     kw = get_aperture_kwargs_to_pyat(xel)
@@ -389,6 +399,7 @@ TO_PYAT = {'Monitor':         convert_monitor_to_pyat         ,
            'Octupole':        convert_octupole_to_pyat        ,
            'ThinMultipole':   convert_thinmultipole_to_pyat   ,
            'Collimator':      convert_collimator_to_pyat      ,
+           'Kicker':          convert_kicker_to_pyat         ,
            'HKicker':         convert_hkicker_to_pyat         ,
            'VKicker':         convert_vkicker_to_pyat         ,
            'TKicker':         convert_tkicker_to_pyat         ,
