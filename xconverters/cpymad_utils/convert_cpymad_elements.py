@@ -191,6 +191,14 @@ def convert_vkicker_from_cpymad(cpymad_element, kw):
     return xe.VKicker(cpymad_element.name, **kw)
 
 
+def convert_kicker_from_cpymad(cpymad_element, kw):
+    kw.update({
+               'hkick': cpymad_element.hkick,
+               'vkick': cpymad_element.vkick,
+               })
+    return xe.TKicker(cpymad_element.name, **kw)
+
+
 def convert_tkicker_from_cpymad(cpymad_element, kw):
     kw.update({
                'hkick': cpymad_element.hkick,
@@ -233,6 +241,7 @@ FROM_CPYMAD = {'monitor':         convert_monitor_from_cpymad         ,
                'sextupole':       convert_sextupole_from_cpymad       ,
                'octupole':        convert_octupole_from_cpymad        ,
                'collimator':      convert_collimator_from_cpymad      ,
+               'kicker':          convert_kicker_from_cpymad         ,
                'hkicker':         convert_hkicker_from_cpymad         ,
                'vkicker':         convert_vkicker_from_cpymad         ,
                'tkicker':         convert_tkicker_from_cpymad         ,
